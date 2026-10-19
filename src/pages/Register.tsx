@@ -9,7 +9,7 @@ import { useAuthStore } from '../store/authStore'
 
 interface RegisterValues {
   fullName: string
-  phone: string
+  email: string
   password: string
   confirmPassword: string
 }
@@ -20,21 +20,24 @@ export function Register() {
   const navigate = useNavigate()
   const { register, handleSubmit, getValues, formState: { errors, isSubmitting } } = useForm<RegisterValues>()
 
-  const submit = handleSubmit(async ({ fullName, phone, password }) => {
+  const submit = handleSubmit(async ({ fullName, email, password }) => {
     setError('')
     setNotice('')
     try {
       requireSupabaseConfiguration(isSupabaseConfigured)
       const { data, error: signUpError } = await supabase.auth.signUp({
-        phone: phone.trim(),
+        email: email.trim().toLowerCase(),
         password,
-        options: { data: { full_name: fullName.trim() } },
+        options: {
+          data: { full_name: fullName.trim() },
+          emailRedirectTo: `${window.location.origin}${import.meta.env.BASE_URL}`,
+        },
       })
       if (signUpError) throw signUpError
       if (!data.user) throw new Error('La création du compte n’a retourné aucun utilisateur.')
 
       if (!data.session) {
-        setNotice('Compte créé. La confirmation du numéro est exigée par Supabase avant la connexion. Désactivez la confirmation téléphonique dans Supabase Auth pour utiliser le mot de passe sans code.')
+        setNotice('Compte créé. Vérifiez votre boîte mail et cliquez sur le lien de confirmation avant de vous connecter.')
         return
       }
 
@@ -52,15 +55,15 @@ export function Register() {
         <Link className="brand" to="/"><span className="brand-mark">S</span>Smartmarket</Link>
         <span className="eyebrow">Créer un compte</span>
         <h1>Bienvenue au marché.</h1>
-        <p className="muted">Créez votre compte avec votre numéro et un mot de passe.</p>
+        <p className="muted">Créez votre compte avec votre adresse e-mail et un mot de passe.</p>
         <form className="form-stack" onSubmit={(event) => void submit(event)}>
           <label>Prénom et nom<input autoComplete="name" {...register('fullName', { required: 'Votre nom est obligatoire.' })} placeholder="Ex. Awa Koné" /></label>
           {errors.fullName && <ErrorMessage>{errors.fullName.message}</ErrorMessage>}
-          <label>Téléphone (+225)
-            <input autoComplete="tel" type="tel" placeholder="+225 07 00 00 00 00"
-              {...register('phone', { required: 'Votre numéro de téléphone est obligatoire.', pattern: { value: /^\+225\d{10}$/, message: 'Saisissez un numéro au format +225XXXXXXXXXX, sans espaces.' } })} />
+          <label>Adresse e-mail
+            <input autoComplete="email" type="email" placeholder="awa@example.com"
+              {...register('email', { required: 'Votre adresse e-mail est obligatoire.', pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Saisissez une adresse e-mail valide.' } })} />
           </label>
-          {errors.phone && <ErrorMessage>{errors.phone.message}</ErrorMessage>}
+          {errors.email && <ErrorMessage>{errors.email.message}</ErrorMessage>}
           <label>Mot de passe<input type="password" autoComplete="new-password" {...register('password', { required: 'Choisissez un mot de passe.', minLength: { value: 8, message: 'Le mot de passe doit contenir au moins 8 caractères.' } })} /></label>
           {errors.password && <ErrorMessage>{errors.password.message}</ErrorMessage>}
           <label>Confirmer le mot de passe<input type="password" autoComplete="new-password" {...register('confirmPassword', { required: 'Confirmez votre mot de passe.', validate: (value) => value === getValues('password') || 'Les mots de passe ne correspondent pas.' })} /></label>

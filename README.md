@@ -8,7 +8,7 @@ MVP mobile-first pour mettre en relation les acheteurs et vendeurs de produits f
 2. Installer les dépendances avec `npm install`.
 3. Copier `.env.example` vers `.env` et renseigner l’URL Supabase ainsi que la clé anon du projet.
 4. Exécuter [`supabase/schema.sql`](./supabase/schema.sql) dans l’éditeur SQL Supabase.
-5. Dans Supabase Auth, activer l’authentification par téléphone. Pour créer des comptes sans code de vérification, désactiver également la confirmation des numéros de téléphone.
+5. Dans Supabase Auth, activer l’authentification par e-mail et conserver la confirmation des adresses e-mail. Configurer un fournisseur SMTP pour envoyer les e-mails de confirmation aux utilisateurs en production. Les comptes historiquement créés avec un numéro ne sont pas convertis automatiquement.
 6. Lancer `npm run dev`.
 
 Sans configuration Supabase, l’interface de bienvenue reste accessible, mais les inscriptions, connexions et données catalogue signalent explicitement que la configuration est nécessaire.
@@ -23,7 +23,7 @@ L’URL du site et l’authentification dépendent aussi de la configuration de 
 
 ## Parcours inclus
 
-- Onboarding, inscription par numéro de téléphone et mot de passe, connexion par numéro et mot de passe, puis sélection du rôle.
+- Onboarding, inscription et connexion par adresse e-mail et mot de passe avec confirmation de l’adresse, puis sélection du rôle.
 - Profil de boutique soumis à validation, catalogue et gestion vendeur des produits/brouillons et photos.
 - Accueil acheteur, rayons, fiche produit et contact direct par WhatsApp.
 - Les commandes, le panier et le paiement sont prévus pour la Phase 2.

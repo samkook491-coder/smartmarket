@@ -8,7 +8,7 @@ import { isSupabaseConfigured, supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/authStore'
 
 interface LoginValues {
-  phone: string
+  email: string
   password: string
 }
 
@@ -17,12 +17,12 @@ export function Login() {
   const navigate = useNavigate()
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginValues>()
 
-  const submit = handleSubmit(async ({ phone, password }) => {
+  const submit = handleSubmit(async ({ email, password }) => {
     setError('')
     try {
       requireSupabaseConfiguration(isSupabaseConfigured)
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
-        phone: phone.trim(),
+        email: email.trim().toLowerCase(),
         password,
       })
       if (signInError) throw signInError
@@ -43,12 +43,12 @@ export function Login() {
         <Link className="brand" to="/"><span className="brand-mark">S</span>Smartmarket</Link>
         <span className="eyebrow">Heureux de vous revoir</span>
         <h1>Se connecter.</h1>
-        <p className="muted">Connectez-vous avec votre numéro et votre mot de passe.</p>
+        <p className="muted">Connectez-vous avec votre adresse e-mail et votre mot de passe.</p>
         <form className="form-stack" onSubmit={(event) => void submit(event)}>
-          <label>Téléphone (+225)
-            <input type="tel" autoComplete="tel" {...register('phone', { required: 'Saisissez votre numéro.', pattern: { value: /^\+225\d{10}$/, message: 'Format attendu : +225XXXXXXXXXX, sans espaces.' } })} placeholder="+225 07 00 00 00 00" />
+          <label>Adresse e-mail
+            <input type="email" autoComplete="email" {...register('email', { required: 'Saisissez votre adresse e-mail.', pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Saisissez une adresse e-mail valide.' } })} placeholder="awa@example.com" />
           </label>
-          {errors.phone && <ErrorMessage>{errors.phone.message}</ErrorMessage>}
+          {errors.email && <ErrorMessage>{errors.email.message}</ErrorMessage>}
           <label>Mot de passe<input type="password" autoComplete="current-password" {...register('password', { required: 'Saisissez votre mot de passe.' })} /></label>
           {errors.password && <ErrorMessage>{errors.password.message}</ErrorMessage>}
           {error && <ErrorMessage>{error}</ErrorMessage>}
