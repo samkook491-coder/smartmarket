@@ -65,7 +65,7 @@ export function RegisterShop() {
           {errors.whatsapp && <ErrorMessage>{errors.whatsapp.message}</ErrorMessage>}
           <label className="upload-control"><ImagePlus size={20} />{logo ? logo.name : 'Ajouter le logo de la boutique'}<input type="file" accept="image/*" onChange={(event) => setLogo(event.target.files?.[0] ?? null)} /></label>
           {error && <ErrorMessage>{error}</ErrorMessage>}
-          <Notice>Votre boutique sera en cours de validation pendant 24 à 48 h. Vous pourrez préparer vos produits entre-temps.</Notice>
+          <Notice>Votre boutique sera soumise à une validation administrative, généralement effectuée sous 24 heures. Vous pourrez préparer vos produits en brouillon pendant l’examen.</Notice>
           <button className="button primary full" disabled={isSubmitting}>{isSubmitting ? 'Enregistrement…' : 'Enregistrer ma boutique'} <ArrowRight size={18} /></button>
         </form>
       </section>

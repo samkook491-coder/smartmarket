@@ -37,6 +37,7 @@ export interface Product {
   description: string | null
   price: number
   unit: Unit
+  available_quantity: number
   in_stock: boolean
   status: ProductStatus
   created_at: string

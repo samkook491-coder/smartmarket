@@ -46,10 +46,15 @@ create table if not exists public.products (
   description text,
   price integer not null check (price >= 0),
   unit text not null check (unit in ('kg', 'sachet', 'botte', 'pièce', 'litre')),
+  available_quantity numeric(10, 2) not null default 0 check (available_quantity >= 0),
   in_stock boolean not null default true,
   status text not null default 'draft' check (status in ('draft', 'published')),
   created_at timestamptz not null default now()
 );
+
+alter table public.products
+  add column if not exists available_quantity numeric(10, 2) not null default 0
+  check (available_quantity >= 0);
 
 create table if not exists public.product_images (
   id uuid primary key default gen_random_uuid(),

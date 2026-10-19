@@ -25,5 +25,8 @@ L’URL du site et l’authentification dépendent aussi de la configuration de 
 
 - Onboarding, inscription et connexion par adresse e-mail et mot de passe avec confirmation de l’adresse, puis sélection du rôle.
 - Profil de boutique soumis à validation, catalogue et gestion vendeur des produits/brouillons et photos.
-- Accueil acheteur, rayons, fiche produit et contact direct par WhatsApp.
-- Les commandes, le panier et le paiement sont prévus pour la Phase 2.
+- Accueil acheteur, menu du marché, rayons, fiche produit et contact direct par WhatsApp.
+- Panier conservé sur l’appareil, quantités limitées au stock annoncé et demandes de commande envoyées au vendeur via WhatsApp.
+- Espace « En gros » pour les restaurants et professionnels, avec sélection de volumes selon le stock disponible.
+
+Pour une base Supabase déjà configurée, exécuter à nouveau [`supabase/schema.sql`](./supabase/schema.sql) afin d’ajouter la quantité disponible aux produits existants. Les produits déjà enregistrés reçoivent une quantité initiale de zéro, à ajuster dans l’espace vendeur pour refléter le stock réel.

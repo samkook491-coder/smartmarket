@@ -3,14 +3,17 @@ import { HashRouter, Link, Navigate, Route, Routes } from 'react-router-dom'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { AddProduct } from './pages/AddProduct'
 import { CategoryPage } from './pages/CategoryPage'
+import { Cart } from './pages/Cart'
 import { Home } from './pages/Home'
 import { Login } from './pages/Login'
+import { MarketMenu } from './pages/MarketMenu'
 import { Onboarding } from './pages/Onboarding'
 import { ProductDetail } from './pages/ProductDetail'
 import { Register } from './pages/Register'
 import { RegisterRole } from './pages/RegisterRole'
 import { RegisterShop } from './pages/RegisterShop'
 import { SellerDashboard } from './pages/SellerDashboard'
+import { Wholesale } from './pages/Wholesale'
 import { useAuthStore } from './store/authStore'
 
 function RootRedirect() {
@@ -44,6 +47,9 @@ function AppRoutes() {
         <Route path="/home" element={<Home />} />
         <Route path="/category/:slug" element={<CategoryPage />} />
         <Route path="/product/:id" element={<ProductDetail />} />
+        <Route path="/menu" element={<MarketMenu />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/wholesale" element={<Wholesale />} />
       </Route>
       <Route element={<ProtectedRoute role="seller" />}>
         <Route path="/seller/dashboard" element={<SellerDashboard />} />

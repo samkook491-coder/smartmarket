@@ -16,7 +16,7 @@ interface ProductValues {
   description: string
   price: number
   unit: Unit
-  in_stock: boolean
+  available_quantity: number
   status: ProductStatus
 }
 
@@ -34,7 +34,7 @@ export function AddProduct() {
   const [saving, setSaving] = useState(false)
   const previews = useMemo(() => files.map((file) => URL.createObjectURL(file)), [files])
   const { register, handleSubmit, reset, watch, formState: { errors } } = useForm<ProductValues>({
-    defaultValues: { category_id: 1, unit: 'kg', in_stock: true, status: 'draft', price: 0 },
+    defaultValues: { category_id: 1, unit: 'kg', available_quantity: 0, status: 'draft', price: 0 },
   })
   const requestedStatus = watch('status')
 
@@ -48,8 +48,10 @@ export function AddProduct() {
         if (!user) throw new Error('Connectez-vous pour gérer vos produits.')
         await fetchShop(user.id)
         if (id) {
+          const currentShop = useShopStore.getState().shop
+          if (!currentShop) throw new Error('Aucune boutique n’est associée à votre compte.')
           const { data, error: queryError } = await supabase.from('products')
-            .select('*, product_images(*)').eq('id', id).single()
+            .select('*, product_images(*)').eq('id', id).eq('shop_id', currentShop.id).single()
           if (queryError) throw queryError
           if (!active) return
           const loaded = data as Product
@@ -61,7 +63,7 @@ export function AddProduct() {
             description: loaded.description ?? '',
             price: loaded.price,
             unit: loaded.unit,
-            in_stock: loaded.in_stock,
+            available_quantity: Number(loaded.available_quantity),
             status: loaded.status,
           })
         }
@@ -86,7 +88,7 @@ export function AddProduct() {
       }
       if (editing && !product) throw new Error('Le produit à modifier n’a pas pu être chargé.')
       if (!editing) {
-        const { count, error: countError } = await supabase.from('products').select('id', { count: 'exact', head: true }).eq('shop_id', shop.id)
+        const { count, error: countError } = await supabase.from('products').select('id', { count: 'exact' }).eq('shop_id', shop.id)
         if (countError) throw countError
         if ((count ?? 0) >= 50) throw new Error('La limite de 50 produits par boutique est atteinte.')
       }
@@ -98,7 +100,8 @@ export function AddProduct() {
         description: values.description.trim() || null,
         price: Number(values.price),
         unit: values.unit,
-        in_stock: values.in_stock,
+        available_quantity: Number(values.available_quantity),
+        in_stock: Number(values.available_quantity) > 0,
         status: values.status,
       }
       let productId = product?.id
@@ -160,7 +163,9 @@ export function AddProduct() {
             <label>Unité<select {...register('unit', { required: 'Choisissez une unité.' })}>{UNITES.map((unit) => <option key={unit} value={unit}>{unit}</option>)}</select></label>
           </div>
           {errors.price && <ErrorMessage>{errors.price.message}</ErrorMessage>}
-          <label className="toggle-label"><input type="checkbox" {...register('in_stock')} /><span className="toggle-ui" /><span>Produit disponible en stock</span></label>
+          <label>Quantité disponible ({watch('unit')})<input type="number" min="0" step={watch('unit') === 'kg' || watch('unit') === 'litre' ? '0.01' : '1'} {...register('available_quantity', { required: 'La quantité disponible est obligatoire.', valueAsNumber: true, min: { value: 0, message: 'La quantité ne peut pas être négative.' }, validate: (value) => Number.isFinite(value) || 'Saisissez une quantité valide.' })} /></label>
+          {errors.available_quantity && <ErrorMessage>{errors.available_quantity.message}</ErrorMessage>}
+          <p className="muted stock-help">Le produit sera indiqué comme disponible si la quantité est supérieure à zéro.</p>
           <fieldset className="status-fieldset"><legend>Publication</legend>
             <label className="radio-choice"><input type="radio" value="draft" {...register('status')} /><span><strong>Brouillon</strong><small>Visible uniquement dans votre espace vendeur</small></span></label>
             <label className="radio-choice"><input type="radio" value="published" {...register('status')} /><span><strong>Publié</strong><small>Visible par les acheteurs Smartmarket</small></span></label>

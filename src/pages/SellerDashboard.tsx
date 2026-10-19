@@ -26,8 +26,10 @@ export function SellerDashboard() {
         requireSupabaseConfiguration(isSupabaseConfigured)
         if (!user) throw new Error('Connectez-vous pour accéder à votre boutique.')
         await fetchShop(user.id)
+        const currentShop = useShopStore.getState().shop
+        if (!currentShop) throw new Error('Aucune boutique n’est associée à votre compte.')
         const { data, error: queryError } = await supabase.from('products')
-          .select('*, product_images(*)').order('created_at', { ascending: false })
+          .select('*, product_images(*)').eq('shop_id', currentShop.id).order('created_at', { ascending: false })
         if (queryError) throw queryError
         if (active) setProducts((data ?? []) as Product[])
       } catch (loadError) {
@@ -51,7 +53,7 @@ export function SellerDashboard() {
           <div><span className="eyebrow"><Store size={14} /> Espace vendeur</span><h1>Mes produits</h1><p className="muted">{shop?.name ?? 'Votre boutique Smartmarket'}</p></div>
           {shop && <Link className="button primary" to="/seller/product/new"><CirclePlus size={18} /> Ajouter un produit</Link>}
         </div>
-        {shop && <div className={`shop-status ${shop.status}`}><span className="status-dot" /><div><strong>{statusText}</strong><p>{shop.status === 'pending' ? 'Votre boutique sera validée sous 24 à 48 h. Vous pouvez préparer vos produits en brouillon.' : shop.status === 'suspended' ? 'La publication est désactivée. Contactez Smartmarket pour obtenir de l’aide.' : 'Votre boutique peut publier des produits.'}</p></div></div>}
+        {shop && <div className={`shop-status ${shop.status}`}><span className="status-dot" /><div><strong>{statusText}</strong><p>{shop.status === 'pending' ? 'Votre boutique est en attente de validation administrative, généralement effectuée sous 24 heures. Vous pouvez préparer vos produits en brouillon.' : shop.status === 'suspended' ? 'La publication est désactivée. Contactez Smartmarket pour obtenir de l’aide.' : 'Votre boutique peut publier des produits.'}</p></div></div>}
         {loading || shopLoading ? <Loading label="Chargement de votre boutique…" /> : error ? <ErrorMessage>{error}</ErrorMessage> : !shop
           ? <div className="empty-state"><span>🏪</span><h3>Aucune boutique trouvée</h3><p>Complétez d’abord votre profil boutique.</p><Link to="/register/shop">Créer ma boutique <ArrowRight size={16} /></Link></div>
           : <>
@@ -62,7 +64,7 @@ export function SellerDashboard() {
               const image = [...(product.product_images ?? [])].sort((a, b) => a.position - b.position)[0]?.url
               return <article className="seller-product-row" key={product.id}>
                 <div className="seller-product-photo">{image ? <img src={image} alt="" /> : <ImageOff size={22} />}</div>
-                <div className="seller-product-info"><strong>{product.name}</strong><span>{formatFCFA(product.price)} / {product.unit}</span></div>
+                <div className="seller-product-info"><strong>{product.name}</strong><span>{formatFCFA(product.price)} / {product.unit} · {Number(product.available_quantity)} {product.unit} disponible(s)</span></div>
                 <span className={`status-pill ${product.status}`}>{product.status === 'published' ? 'Publié' : 'Brouillon'}</span>
                 <Link className="icon-link edit-link" aria-label={`Modifier ${product.name}`} to={`/seller/product/${product.id}/edit`}><Pencil size={17} /></Link>
               </article>
