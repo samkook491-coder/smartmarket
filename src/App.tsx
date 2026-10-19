@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { BrowserRouter, Link, Navigate, Route, Routes } from 'react-router-dom'
+import { HashRouter, Link, Navigate, Route, Routes } from 'react-router-dom'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { AddProduct } from './pages/AddProduct'
 import { CategoryPage } from './pages/CategoryPage'
@@ -56,5 +56,5 @@ function AppRoutes() {
 }
 
 export default function App() {
-  return <BrowserRouter basename={import.meta.env.BASE_URL}><AppRoutes /></BrowserRouter>
+  return <HashRouter><AppRoutes /></HashRouter>
 }

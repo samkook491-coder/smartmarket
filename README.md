@@ -15,7 +15,7 @@ Sans configuration Supabase, l’interface de bienvenue reste accessible, mais l
 
 ## Déploiement sur GitHub Pages
 
-Le workflow GitHub Actions publie automatiquement l’application sur GitHub Pages à chaque mise à jour de la branche `main`. Dans les paramètres du dépôt, choisir **Settings → Pages → Build and deployment → GitHub Actions**.
+Le workflow GitHub Actions publie automatiquement l’application sur GitHub Pages à chaque mise à jour de la branche `main`. Les routes utilisent des fragments d’URL (par exemple `/#/onboarding`) pour fonctionner aussi lorsqu’une page est ouverte directement. Dans les paramètres du dépôt, choisir **Settings → Pages → Build and deployment → GitHub Actions**.
 
 Pour activer Supabase dans la version publiée, ajouter `VITE_SUPABASE_URL` et `VITE_SUPABASE_ANON_KEY` comme secrets Actions dans **Settings → Secrets and variables → Actions**. Ces valeurs sont intégrées au JavaScript envoyé au navigateur ; la clé anon n’est pas un secret d’accès à la base. Configurer les politiques RLS de Supabase avant la mise en ligne et ne jamais utiliser une clé `service_role` dans l’application.
 
