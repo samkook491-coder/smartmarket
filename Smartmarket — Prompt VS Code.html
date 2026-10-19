@@ -1,0 +1,1266 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Smartmarket — Prompt VS Code</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* === TOKENS ===
+   Layout: single-column document, sticky header, sectioned prompt blocks
+   Color: dark terminal base, green market accent, warm neutrals
+*/
+:root {
+  --bg: #F7F8F5;
+  --bg-2: #EEEEE9;
+  --surface: #FFFFFF;
+  --border: #D8D9D2;
+  --fg: #1C1D1A;
+  --fg-2: #5A5C54;
+  --fg-3: #8A8C84;
+  --accent: #16A34A;
+  --accent-light: #DCFCE7;
+  --accent-fg: #14532D;
+  --orange: #EA580C;
+  --orange-light: #FFF1E6;
+  --code-bg: #1C2420;
+  --code-fg: #C8FACC;
+  --code-comment: #6B9E7A;
+  --code-key: #86EFAC;
+  --code-val: #FCD34D;
+  --radius: 10px;
+  --font-body: 'Space Grotesk', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0F1410;
+    --bg-2: #171D18;
+    --surface: #1C2420;
+    --border: #2C3830;
+    --fg: #E8EDE5;
+    --fg-2: #9BA898;
+    --fg-3: #5C6860;
+    --accent: #22C55E;
+    --accent-light: #052E16;
+    --accent-fg: #86EFAC;
+    --orange: #FB923C;
+    --orange-light: #1C1008;
+    --code-bg: #0A0F0B;
+    --code-fg: #C8FACC;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0F1410;
+  --bg-2: #171D18;
+  --surface: #1C2420;
+  --border: #2C3830;
+  --fg: #E8EDE5;
+  --fg-2: #9BA898;
+  --fg-3: #5C6860;
+  --accent: #22C55E;
+  --accent-light: #052E16;
+  --accent-fg: #86EFAC;
+  --orange: #FB923C;
+  --orange-light: #1C1008;
+  --code-bg: #0A0F0B;
+  --code-fg: #C8FACC;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--fg);
+  line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 48px;
+}
+
+/* === HEADER === */
+.site-header {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 100;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  padding-block: 14px;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px);
+  background: var(--bg);
+  z-index: 101;
+}
+.header-inner {
+  max-width: 860px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: -0.02em;
+}
+.logo-mark {
+  width: 32px; height: 32px;
+  background: var(--accent);
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--accent-light);
+  color: var(--accent-fg);
+  border-radius: 100px;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+.badge.orange {
+  background: var(--orange-light);
+  color: var(--orange);
+}
+.theme-btn {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+  color: var(--fg-2);
+  font-size: 0.9rem;
+  font-family: var(--font-body);
+  transition: color 0.15s;
+}
+.theme-btn:hover { color: var(--fg); }
+
+/* === MAIN LAYOUT === */
+.main {
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+/* === INTRO === */
+.intro {
+  padding-block: 48px 32px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 40px;
+}
+.intro-eyebrow {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+.intro h1 {
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  color: var(--fg);
+  text-wrap: balance;
+  margin-bottom: 16px;
+}
+.intro h1 span { color: var(--accent); }
+.intro p {
+  color: var(--fg-2);
+  max-width: 600px;
+  font-size: 1.0625rem;
+  margin-bottom: 20px;
+}
+.meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+/* === SECTIONS === */
+.section {
+  margin-bottom: 40px;
+}
+.section-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+  margin-bottom: 16px;
+}
+.section-label::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+  color: var(--fg);
+}
+.section-desc {
+  color: var(--fg-2);
+  font-size: 0.9375rem;
+  margin-bottom: 20px;
+  max-width: 640px;
+}
+
+/* === CODE BLOCKS === */
+.code-block {
+  background: var(--code-bg);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 16px;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+.code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: rgba(255,255,255,0.04);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.code-filename {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--code-comment);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.copy-btn {
+  background: rgba(255,255,255,0.08);
+  border: none;
+  border-radius: 6px;
+  color: var(--code-comment);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.copy-btn:hover { background: rgba(255,255,255,0.15); color: var(--code-fg); }
+.copy-btn.copied { color: var(--accent); }
+pre {
+  padding: 20px;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  line-height: 1.7;
+  color: var(--code-fg);
+  white-space: pre;
+  tab-size: 2;
+}
+.c { color: var(--code-comment); font-style: italic; }
+.k { color: var(--code-key); }
+.v { color: var(--code-val); }
+.s { color: #FDA4AF; }
+.h { color: #7DD3FC; }
+
+/* === STEP CARDS === */
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.step {
+  display: flex;
+  gap: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  align-items: flex-start;
+}
+.step-num {
+  flex-shrink: 0;
+  width: 28px; height: 28px;
+  background: var(--accent-light);
+  color: var(--accent-fg);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.step-body { min-width: 0; }
+.step-title { font-weight: 600; font-size: 0.9375rem; margin-bottom: 4px; }
+.step-desc { color: var(--fg-2); font-size: 0.875rem; }
+.step-desc code {
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+  background: var(--bg-2);
+  padding: 1px 5px;
+  border-radius: 4px;
+  color: var(--accent);
+}
+
+/* === SCHEMA TABLE === */
+.schema-table-wrap { overflow-x: auto; margin-bottom: 16px; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  min-width: 480px;
+}
+thead tr { background: var(--bg-2); }
+th {
+  text-align: left;
+  padding: 10px 14px;
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+  border-bottom: 1px solid var(--border);
+}
+td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  color: var(--fg-2);
+  vertical-align: top;
+}
+td:first-child { color: var(--fg); font-family: var(--font-mono); font-size: 0.8rem; }
+td code {
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+  background: var(--bg-2);
+  padding: 1px 5px;
+  border-radius: 4px;
+  color: var(--orange);
+}
+tr:last-child td { border-bottom: none; }
+
+/* === CALLOUT === */
+.callout {
+  background: var(--accent-light);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 14px 16px;
+  font-size: 0.9rem;
+  color: var(--accent-fg);
+  margin-bottom: 16px;
+}
+.callout strong { font-weight: 700; }
+.callout.warn {
+  background: var(--orange-light);
+  border-color: var(--orange);
+  color: var(--orange);
+}
+
+/* === FOLDER TREE === */
+.tree {
+  background: var(--code-bg);
+  border-radius: var(--radius);
+  padding: 20px;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  line-height: 1.8;
+  color: var(--code-fg);
+  overflow-x: auto;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+.tree .dir { color: var(--code-key); }
+.tree .file { color: var(--code-fg); opacity: 0.8; }
+.tree .cmt { color: var(--code-comment); }
+
+/* === NAV (table of contents) === */
+.toc {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 40px;
+}
+.toc-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+  margin-bottom: 12px;
+}
+.toc-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.toc-list a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--fg-2);
+  text-decoration: none;
+  font-size: 0.9rem;
+  padding: 4px 0;
+  transition: color 0.15s;
+}
+.toc-list a:hover { color: var(--accent); }
+.toc-list a::before {
+  content: "";
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--border);
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.toc-list a:hover::before { background: var(--accent); }
+
+/* === MISC === */
+hr { border: none; border-top: 1px solid var(--border); margin-block: 40px; }
+
+@media (max-width: 600px) {
+  .intro { padding-block: 32px 24px; }
+  pre { font-size: 0.75rem; }
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-mark">SM</div>
+      Smartmarket
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span class="badge">Phase 1</span>
+      <button class="theme-btn" onclick="toggleTheme()">◐</button>
+    </div>
+  </div>
+</header>
+
+<main class="main">
+
+  <div class="intro">
+    <div class="intro-eyebrow">Prompt de Bootstrap — VS Code + Supabase</div>
+    <h1>Démarrer <span>Smartmarket</span><br>de zéro</h1>
+    <p>Ce document contient tout ce qu'il faut pour initialiser le projet Smartmarket dans VS Code : architecture, schéma SQL, structure de fichiers, et le prompt complet à donner à GitHub Copilot ou Claude.</p>
+    <div class="meta-row">
+      <span class="badge">React + Vite</span>
+      <span class="badge">Supabase</span>
+      <span class="badge">TypeScript</span>
+      <span class="badge orange">MVP · Phase 1</span>
+    </div>
+  </div>
+
+  <nav class="toc">
+    <div class="toc-title">Sommaire</div>
+    <ul class="toc-list">
+      <li><a href="#init">1. Initialisation du projet</a></li>
+      <li><a href="#structure">2. Structure des fichiers</a></li>
+      <li><a href="#supabase">3. Schéma Supabase (SQL)</a></li>
+      <li><a href="#env">4. Variables d'environnement</a></li>
+      <li><a href="#prompt">5. Prompt complet pour l'IA</a></li>
+      <li><a href="#pages">6. Détail des pages à générer</a></li>
+    </ul>
+  </nav>
+
+  <!-- ==================== SECTION 1 ==================== -->
+  <section class="section" id="init">
+    <div class="section-label">Étape 1</div>
+    <div class="section-title">Initialisation du projet</div>
+    <div class="section-desc">Lance ces commandes dans ton terminal VS Code, dans l'ordre, pour créer la base du projet.</div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">Créer le projet React + Vite + TypeScript</div>
+          <div class="step-desc">Dans le terminal : <code>npm create vite@latest smartmarket -- --template react-ts</code> puis <code>cd smartmarket</code></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">Installer les dépendances</div>
+          <div class="step-desc"><code>npm install</code> puis <code>npm install @supabase/supabase-js react-router-dom react-hook-form zustand lucide-react</code></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-title">Installer Tailwind CSS</div>
+          <div class="step-desc"><code>npm install -D tailwindcss postcss autoprefixer</code> puis <code>npx tailwindcss init -p</code></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <div class="step-title">Créer le projet Supabase</div>
+          <div class="step-desc">Va sur <code>supabase.com</code>, crée un nouveau projet "smartmarket", copie l'URL et la clé anon dans ton <code>.env</code></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <div class="step-title">Lancer le dev server</div>
+          <div class="step-desc"><code>npm run dev</code> — l'app tourne sur <code>http://localhost:5173</code></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-filename">📦 package.json — dépendances Phase 1</div>
+        <button class="copy-btn" onclick="copyCode(this)">Copier</button>
+      </div>
+      <pre><span class="c">// Dépendances principales</span>
+<span class="k">"dependencies"</span>: {
+  <span class="s">"@supabase/supabase-js"</span>: <span class="v">"^2.x"</span>,      <span class="c">// Client Supabase</span>
+  <span class="s">"react-router-dom"</span>: <span class="v">"^6.x"</span>,           <span class="c">// Routing</span>
+  <span class="s">"react-hook-form"</span>: <span class="v">"^7.x"</span>,            <span class="c">// Formulaires</span>
+  <span class="s">"zustand"</span>: <span class="v">"^4.x"</span>,                   <span class="c">// State global (auth, panier)</span>
+  <span class="s">"lucide-react"</span>: <span class="v">"^0.x"</span>               <span class="c">// Icônes</span>
+}</pre>
+    </div>
+  </section>
+
+  <!-- ==================== SECTION 2 ==================== -->
+  <section class="section" id="structure">
+    <div class="section-label">Étape 2</div>
+    <div class="section-title">Structure des fichiers</div>
+    <div class="section-desc">L'arborescence complète du projet à créer dans VS Code avant de générer le code.</div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-filename">📁 smartmarket/src/</div>
+        <button class="copy-btn" onclick="copyCode(this)">Copier</button>
+      </div>
+      <pre class="tree"><span class="dir">src/</span>
+├── <span class="dir">components/</span>          <span class="cmt"># Composants réutilisables</span>
+│   ├── <span class="dir">ui/</span>
+│   │   ├── <span class="file">Button.tsx</span>
+│   │   ├── <span class="file">Input.tsx</span>
+│   │   ├── <span class="file">Badge.tsx</span>
+│   │   └── <span class="file">Spinner.tsx</span>
+│   ├── <span class="file">Navbar.tsx</span>          <span class="cmt"># Barre nav globale</span>
+│   ├── <span class="file">BottomNav.tsx</span>       <span class="cmt"># Nav mobile (Accueil, Rayons, Panier, Menu)</span>
+│   ├── <span class="file">ProductCard.tsx</span>     <span class="cmt"># Carte produit</span>
+│   ├── <span class="file">CategoryCard.tsx</span>    <span class="cmt"># Carte rayon</span>
+│   └── <span class="file">ProtectedRoute.tsx</span>  <span class="cmt"># Guard auth</span>
+│
+├── <span class="dir">pages/</span>               <span class="cmt"># 10 pages Phase 1</span>
+│   ├── <span class="file">Onboarding.tsx</span>      <span class="cmt"># 3 slides de présentation</span>
+│   ├── <span class="file">Register.tsx</span>        <span class="cmt"># Inscription (infos de base)</span>
+│   ├── <span class="file">RegisterRole.tsx</span>    <span class="cmt"># Choix du rôle acheteur/vendeur</span>
+│   ├── <span class="file">RegisterShop.tsx</span>    <span class="cmt"># Profil boutique vendeur</span>
+│   ├── <span class="file">Login.tsx</span>           <span class="cmt"># Connexion</span>
+│   ├── <span class="file">Home.tsx</span>            <span class="cmt"># Accueil acheteur (rayons + produits)</span>
+│   ├── <span class="file">CategoryPage.tsx</span>    <span class="cmt"># Rayon filtré</span>
+│   ├── <span class="file">ProductDetail.tsx</span>   <span class="cmt"># Fiche produit</span>
+│   ├── <span class="file">SellerDashboard.tsx</span> <span class="cmt"># Mes produits (vendeur)</span>
+│   └── <span class="file">AddProduct.tsx</span>      <span class="cmt"># Formulaire ajout/édition produit</span>
+│
+├── <span class="dir">lib/</span>
+│   ├── <span class="file">supabase.ts</span>         <span class="cmt"># Client Supabase + types</span>
+│   └── <span class="file">constants.ts</span>        <span class="cmt"># Rayons, communes, unités</span>
+│
+├── <span class="dir">store/</span>
+│   ├── <span class="file">authStore.ts</span>        <span class="cmt"># Zustand — session + profil</span>
+│   └── <span class="file">shopStore.ts</span>        <span class="cmt"># Zustand — boutique active</span>
+│
+├── <span class="dir">hooks/</span>
+│   ├── <span class="file">useAuth.ts</span>          <span class="cmt"># Auth listener Supabase</span>
+│   └── <span class="file">useProducts.ts</span>      <span class="cmt"># Fetch produits par rayon</span>
+│
+├── <span class="dir">types/</span>
+│   └── <span class="file">database.ts</span>         <span class="cmt"># Types TS générés depuis le schéma SQL</span>
+│
+├── <span class="file">App.tsx</span>               <span class="cmt"># Router principal</span>
+└── <span class="file">main.tsx</span>              <span class="cmt"># Entry point</span></pre>
+    </div>
+  </section>
+
+  <!-- ==================== SECTION 3 ==================== -->
+  <section class="section" id="supabase">
+    <div class="section-label">Étape 3</div>
+    <div class="section-title">Schéma Supabase — SQL complet</div>
+    <div class="section-desc">Colle ce SQL directement dans l'éditeur SQL de ton dashboard Supabase et exécute-le en une fois.</div>
+
+    <div class="callout">
+      <strong>Où l'exécuter :</strong> Supabase Dashboard → SQL Editor → New query → colle le code → Run
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-filename">🗄️ schema.sql — Smartmarket Phase 1</div>
+        <button class="copy-btn" onclick="copyCode(this)">Copier</button>
+      </div>
+      <pre><span class="c">-- ============================================
+-- SMARTMARKET — Schéma Phase 1
+-- ============================================</span>
+
+<span class="c">-- 1. PROFILS UTILISATEURS (extension de auth.users)</span>
+<span class="h">CREATE TABLE</span> profiles (
+  id          <span class="k">UUID</span> <span class="h">PRIMARY KEY</span> <span class="h">REFERENCES</span> auth.users(id) <span class="h">ON DELETE CASCADE</span>,
+  full_name   <span class="k">TEXT</span> <span class="h">NOT NULL</span>,
+  phone       <span class="k">TEXT</span>,
+  role        <span class="k">TEXT</span> <span class="h">CHECK</span>(role <span class="h">IN</span> (<span class="s">'buyer'</span>, <span class="s">'seller'</span>)) <span class="h">DEFAULT</span> <span class="s">'buyer'</span>,
+  avatar_url  <span class="k">TEXT</span>,
+  created_at  <span class="k">TIMESTAMPTZ</span> <span class="h">DEFAULT NOW</span>()
+);
+
+<span class="c">-- 2. BOUTIQUES VENDEURS</span>
+<span class="h">CREATE TABLE</span> shops (
+  id          <span class="k">UUID</span> <span class="h">PRIMARY KEY DEFAULT</span> gen_random_uuid(),
+  owner_id    <span class="k">UUID</span> <span class="h">REFERENCES</span> profiles(id) <span class="h">ON DELETE CASCADE</span>,
+  name        <span class="k">TEXT</span> <span class="h">NOT NULL</span>,
+  description <span class="k">TEXT</span>,
+  commune     <span class="k">TEXT</span>,
+  whatsapp    <span class="k">TEXT</span>,
+  logo_url    <span class="k">TEXT</span>,
+  status      <span class="k">TEXT</span> <span class="h">CHECK</span>(status <span class="h">IN</span> (<span class="s">'pending'</span>, <span class="s">'active'</span>, <span class="s">'suspended'</span>))
+              <span class="h">DEFAULT</span> <span class="s">'pending'</span>,
+  created_at  <span class="k">TIMESTAMPTZ</span> <span class="h">DEFAULT NOW</span>()
+);
+
+<span class="c">-- 3. RAYONS / CATÉGORIES (données fixes)</span>
+<span class="h">CREATE TABLE</span> categories (
+  id    <span class="k">SERIAL PRIMARY KEY</span>,
+  name  <span class="k">TEXT</span> <span class="h">NOT NULL</span>,
+  emoji <span class="k">TEXT</span>,
+  slug  <span class="k">TEXT</span> <span class="h">UNIQUE NOT NULL</span>
+);
+
+<span class="c">-- Insertion des 6 rayons Smartmarket</span>
+<span class="h">INSERT INTO</span> categories (name, emoji, slug) <span class="h">VALUES</span>
+  (<span class="s">'Légumes frais'</span>,       <span class="s">'🥬'</span>, <span class="s">'legumes-frais'</span>),
+  (<span class="s">'Épices & condiments'</span>, <span class="s">'🌿'</span>, <span class="s">'epices-condiments'</span>),
+  (<span class="s">'Conserves & secs'</span>,    <span class="s">'🥫'</span>, <span class="s">'conserves-secs'</span>),
+  (<span class="s">'Tubercules'</span>,          <span class="s">'🍠'</span>, <span class="s">'tubercules'</span>),
+  (<span class="s">'Herbes aromatiques'</span>,  <span class="s">'🌱'</span>, <span class="s">'herbes-aromatiques'</span>),
+  (<span class="s">'Maraîchers divers'</span>,   <span class="s">'🧅'</span>, <span class="s">'maraichers-divers'</span>);
+
+<span class="c">-- 4. PRODUITS</span>
+<span class="h">CREATE TABLE</span> products (
+  id           <span class="k">UUID</span> <span class="h">PRIMARY KEY DEFAULT</span> gen_random_uuid(),
+  shop_id      <span class="k">UUID</span> <span class="h">REFERENCES</span> shops(id) <span class="h">ON DELETE CASCADE</span>,
+  category_id  <span class="k">INT</span>  <span class="h">REFERENCES</span> categories(id),
+  name         <span class="k">TEXT</span> <span class="h">NOT NULL</span>,
+  description  <span class="k">TEXT</span>,
+  price        <span class="k">INTEGER</span> <span class="h">NOT NULL</span>, <span class="c">-- Prix en FCFA</span>
+  unit         <span class="k">TEXT</span> <span class="h">CHECK</span>(unit <span class="h">IN</span> (<span class="s">'kg'</span>,<span class="s">'sachet'</span>,<span class="s">'botte'</span>,<span class="s">'pièce'</span>,<span class="s">'litre'</span>)),
+  in_stock     <span class="k">BOOLEAN</span> <span class="h">DEFAULT TRUE</span>,
+  status       <span class="k">TEXT</span> <span class="h">CHECK</span>(status <span class="h">IN</span> (<span class="s">'draft'</span>,<span class="s">'published'</span>)) <span class="h">DEFAULT</span> <span class="s">'draft'</span>,
+  created_at   <span class="k">TIMESTAMPTZ</span> <span class="h">DEFAULT NOW</span>()
+);
+
+<span class="c">-- 5. PHOTOS PRODUITS</span>
+<span class="h">CREATE TABLE</span> product_images (
+  id         <span class="k">UUID</span> <span class="h">PRIMARY KEY DEFAULT</span> gen_random_uuid(),
+  product_id <span class="k">UUID</span> <span class="h">REFERENCES</span> products(id) <span class="h">ON DELETE CASCADE</span>,
+  url        <span class="k">TEXT</span> <span class="h">NOT NULL</span>,
+  position   <span class="k">INT</span>  <span class="h">DEFAULT</span> <span class="v">0</span>
+);
+
+<span class="c">-- ============================================
+-- ROW LEVEL SECURITY (RLS)
+-- ============================================</span>
+
+<span class="h">ALTER TABLE</span> profiles      <span class="h">ENABLE ROW LEVEL SECURITY</span>;
+<span class="h">ALTER TABLE</span> shops         <span class="h">ENABLE ROW LEVEL SECURITY</span>;
+<span class="h">ALTER TABLE</span> products      <span class="h">ENABLE ROW LEVEL SECURITY</span>;
+<span class="h">ALTER TABLE</span> product_images <span class="h">ENABLE ROW LEVEL SECURITY</span>;
+
+<span class="c">-- profiles : lecture publique, écriture = owner</span>
+<span class="h">CREATE POLICY</span> <span class="s">"profiles_select"</span> <span class="h">ON</span> profiles <span class="h">FOR SELECT USING</span> (<span class="h">TRUE</span>);
+<span class="h">CREATE POLICY</span> <span class="s">"profiles_update"</span> <span class="h">ON</span> profiles <span class="h">FOR UPDATE USING</span> (auth.uid() = id);
+<span class="h">CREATE POLICY</span> <span class="s">"profiles_insert"</span> <span class="h">ON</span> profiles <span class="h">FOR INSERT WITH CHECK</span> (auth.uid() = id);
+
+<span class="c">-- shops : lecture si active, écriture = owner</span>
+<span class="h">CREATE POLICY</span> <span class="s">"shops_select"</span> <span class="h">ON</span> shops
+  <span class="h">FOR SELECT USING</span> (status = <span class="s">'active'</span> <span class="h">OR</span> owner_id = auth.uid());
+<span class="h">CREATE POLICY</span> <span class="s">"shops_insert"</span> <span class="h">ON</span> shops
+  <span class="h">FOR INSERT WITH CHECK</span> (owner_id = auth.uid());
+<span class="h">CREATE POLICY</span> <span class="s">"shops_update"</span> <span class="h">ON</span> shops
+  <span class="h">FOR UPDATE USING</span> (owner_id = auth.uid());
+
+<span class="c">-- products : lecture si published, écriture = shop owner</span>
+<span class="h">CREATE POLICY</span> <span class="s">"products_select"</span> <span class="h">ON</span> products
+  <span class="h">FOR SELECT USING</span> (
+    status = <span class="s">'published'</span>
+    <span class="h">OR</span> shop_id <span class="h">IN</span> (<span class="h">SELECT</span> id <span class="h">FROM</span> shops <span class="h">WHERE</span> owner_id = auth.uid())
+  );
+<span class="h">CREATE POLICY</span> <span class="s">"products_insert"</span> <span class="h">ON</span> products
+  <span class="h">FOR INSERT WITH CHECK</span> (
+    shop_id <span class="h">IN</span> (<span class="h">SELECT</span> id <span class="h">FROM</span> shops <span class="h">WHERE</span> owner_id = auth.uid())
+  );
+<span class="h">CREATE POLICY</span> <span class="s">"products_update"</span> <span class="h">ON</span> products
+  <span class="h">FOR UPDATE USING</span> (
+    shop_id <span class="h">IN</span> (<span class="h">SELECT</span> id <span class="h">FROM</span> shops <span class="h">WHERE</span> owner_id = auth.uid())
+  );
+
+<span class="c">-- product_images : même logique que products</span>
+<span class="h">CREATE POLICY</span> <span class="s">"images_select"</span> <span class="h">ON</span> product_images
+  <span class="h">FOR SELECT USING</span> (
+    product_id <span class="h">IN</span> (<span class="h">SELECT</span> id <span class="h">FROM</span> products <span class="h">WHERE</span> status = <span class="s">'published'</span>)
+    <span class="h">OR</span> product_id <span class="h">IN</span> (
+      <span class="h">SELECT</span> p.id <span class="h">FROM</span> products p
+      <span class="h">JOIN</span> shops s <span class="h">ON</span> s.id = p.shop_id
+      <span class="h">WHERE</span> s.owner_id = auth.uid()
+    )
+  );
+<span class="h">CREATE POLICY</span> <span class="s">"images_insert"</span> <span class="h">ON</span> product_images
+  <span class="h">FOR INSERT WITH CHECK</span> (
+    product_id <span class="h">IN</span> (
+      <span class="h">SELECT</span> p.id <span class="h">FROM</span> products p
+      <span class="h">JOIN</span> shops s <span class="h">ON</span> s.id = p.shop_id
+      <span class="h">WHERE</span> s.owner_id = auth.uid()
+    )
+  );
+
+<span class="c">-- ============================================
+-- STORAGE BUCKET (photos produits)
+-- ============================================</span>
+<span class="h">INSERT INTO</span> storage.buckets (id, name, public) <span class="h">VALUES</span>
+  (<span class="s">'product-images'</span>, <span class="s">'product-images'</span>, <span class="h">TRUE</span>);
+
+<span class="c">-- Trigger : créer un profil automatiquement à l'inscription</span>
+<span class="h">CREATE OR REPLACE FUNCTION</span> handle_new_user()
+<span class="h">RETURNS TRIGGER AS</span> $$
+<span class="h">BEGIN</span>
+  <span class="h">INSERT INTO</span> profiles (id, full_name, phone)
+  <span class="h">VALUES</span> (
+    NEW.id,
+    <span class="h">COALESCE</span>(NEW.raw_user_meta_data->>><span class="s">'full_name'</span>, <span class="s">''</span>),
+    NEW.phone
+  );
+  <span class="h">RETURN NEW</span>;
+<span class="h">END</span>;
+$$ <span class="h">LANGUAGE</span> plpgsql <span class="h">SECURITY DEFINER</span>;
+
+<span class="h">CREATE TRIGGER</span> on_auth_user_created
+  <span class="h">AFTER INSERT ON</span> auth.users
+  <span class="h">FOR EACH ROW EXECUTE FUNCTION</span> handle_new_user();</pre>
+    </div>
+  </section>
+
+  <!-- ==================== SECTION 4 ==================== -->
+  <section class="section" id="env">
+    <div class="section-label">Étape 4</div>
+    <div class="section-title">Variables d'environnement</div>
+    <div class="section-desc">Crée un fichier <code style="font-family:var(--font-mono);font-size:0.85em;background:var(--bg-2);padding:2px 6px;border-radius:4px">.env</code> à la racine du projet avec ces variables.</div>
+
+    <div class="callout warn">
+      <strong>Important :</strong> Ajoute <code>.env</code> dans ton <code>.gitignore</code> avant le premier commit.
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-filename">.env</div>
+        <button class="copy-btn" onclick="copyCode(this)">Copier</button>
+      </div>
+      <pre><span class="k">VITE_SUPABASE_URL</span>=<span class="v">https://xxxxxxxxxxxx.supabase.co</span>
+<span class="k">VITE_SUPABASE_ANON_KEY</span>=<span class="v">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...</span>
+
+<span class="c"># Récupère ces valeurs dans :
+# Supabase Dashboard → Settings → API</span></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-filename">src/lib/supabase.ts</div>
+        <button class="copy-btn" onclick="copyCode(this)">Copier</button>
+      </div>
+      <pre><span class="h">import</span> { createClient } <span class="h">from</span> <span class="s">'@supabase/supabase-js'</span>
+
+<span class="h">const</span> supabaseUrl  = <span class="h">import</span>.meta.env.VITE_SUPABASE_URL
+<span class="h">const</span> supabaseKey  = <span class="h">import</span>.meta.env.VITE_SUPABASE_ANON_KEY
+
+<span class="h">export const</span> supabase = createClient(supabaseUrl, supabaseKey)
+
+<span class="c">// Types des tables (à compléter avec supabase gen types)</span>
+<span class="h">export type</span> Profile = {
+  id: <span class="k">string</span>
+  full_name: <span class="k">string</span>
+  phone?: <span class="k">string</span>
+  role: <span class="s">'buyer'</span> | <span class="s">'seller'</span>
+  avatar_url?: <span class="k">string</span>
+}
+
+<span class="h">export type</span> Shop = {
+  id: <span class="k">string</span>
+  owner_id: <span class="k">string</span>
+  name: <span class="k">string</span>
+  description?: <span class="k">string</span>
+  commune?: <span class="k">string</span>
+  whatsapp?: <span class="k">string</span>
+  logo_url?: <span class="k">string</span>
+  status: <span class="s">'pending'</span> | <span class="s">'active'</span> | <span class="s">'suspended'</span>
+}
+
+<span class="h">export type</span> Product = {
+  id: <span class="k">string</span>
+  shop_id: <span class="k">string</span>
+  category_id: <span class="k">number</span>
+  name: <span class="k">string</span>
+  description?: <span class="k">string</span>
+  price: <span class="k">number</span>
+  unit: <span class="s">'kg'</span> | <span class="s">'sachet'</span> | <span class="s">'botte'</span> | <span class="s">'pièce'</span> | <span class="s">'litre'</span>
+  in_stock: <span class="k">boolean</span>
+  status: <span class="s">'draft'</span> | <span class="s">'published'</span>
+}</pre>
+    </div>
+  </section>
+
+  <!-- ==================== SECTION 5 ==================== -->
+  <section class="section" id="prompt">
+    <div class="section-label">Étape 5 — Principal</div>
+    <div class="section-title">Prompt complet pour GitHub Copilot / Claude</div>
+    <div class="section-desc">Colle ce prompt dans GitHub Copilot Chat (VS Code) ou dans une conversation Claude pour générer l'ensemble du code de la Phase 1.</div>
+
+    <div class="callout">
+      <strong>Comment l'utiliser :</strong> Dans VS Code → ouvre Copilot Chat (Ctrl+Shift+I) → colle le prompt → appuie sur Entrée
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-filename">🤖 PROMPT COMPLET — À copier-coller dans Copilot Chat</div>
+        <button class="copy-btn" onclick="copyCode(this)">Copier</button>
+      </div>
+      <pre style="white-space:pre-wrap;word-break:break-word"><span class="c">====================================================
+SMARTMARKET — Prompt Bootstrap Phase 1
+====================================================</span>
+
+Tu es un développeur React/TypeScript senior.
+Tu vas m'aider à construire Smartmarket, une marketplace
+mobile-first de produits alimentaires frais (légumes, épices,
+conserves, maraîchers) pour le marché ivoirien (Abidjan).
+
+<span class="k">## STACK TECHNIQUE</span>
+- React 18 + Vite + TypeScript
+- Tailwind CSS (utilitaires uniquement)
+- Supabase (Auth + PostgreSQL + Storage)
+- React Router v6
+- React Hook Form (formulaires)
+- Zustand (state global)
+- Lucide React (icônes)
+
+<span class="k">## CHARTE VISUELLE</span>
+- Couleur primaire : #16A34A (vert)
+- Couleur accent   : #EA580C (orange)
+- Style : mobile-first, cards arrondies (rounded-2xl),
+  ombres légères, photos produits plein format
+- Police : system-ui (pas de Google Fonts pour le MVP)
+- Inspiré de l'app Fourmis Food (marché ivoirien)
+
+<span class="k">## DEUX TYPES D'UTILISATEURS</span>
+
+1. ACHETEUR (role = 'buyer')
+   → Browse les rayons et les produits
+   → Consulte les fiches produits
+   → (panier et commande = Phase 2)
+
+2. VENDEUR (role = 'seller')
+   → Crée sa boutique à l'inscription
+   → Publie et gère ses produits par rayon
+   → Dashboard avec liste de ses produits
+
+<span class="k">## AUTHENTIFICATION</span>
+
+Deux méthodes au choix à l'inscription :
+- Email + mot de passe (Supabase emailAuth)
+- Téléphone + OTP SMS (Supabase phoneAuth)
+
+À la connexion : même choix email ou téléphone.
+Mot de passe oublié via email ou SMS.
+
+Après inscription, l'utilisateur choisit son rôle.
+Si rôle = 'seller', il remplit un formulaire boutique.
+
+<span class="k">## PAGES À GÉNÉRER (10 pages)</span>
+
+### PAGE 1 : /onboarding
+- 3 slides défilables (swipe ou boutons)
+- Slide 1 : "Votre marché local, livré chez vous"
+- Slide 2 : "Vendeurs locaux vérifiés"
+- Slide 3 : "100% Frais, Prix marché"
+- Bouton "Commencer" → /register
+
+### PAGE 2 : /register
+Formulaire d'inscription :
+- Champ : Prénom + Nom (obligatoire)
+- Champ : Email OU Numéro de téléphone (au choix, obligatoire)
+- Si téléphone → format +225XXXXXXXXXX avec indicatif Côte d'Ivoire
+- Mot de passe + confirmation (min 6 car)
+- Bouton "Créer mon compte" → appel Supabase signUp
+- Lien "J'ai déjà un compte" → /login
+
+### PAGE 3 : /register/role
+Après inscription réussie, choix du rôle :
+- Deux grandes cartes cliquables :
+  Card 1 : 🛒 "Je veux acheter" → role = 'buyer' → /home
+  Card 2 : 🏪 "Je veux vendre" → role = 'seller' → /register/shop
+
+### PAGE 4 : /register/shop
+Formulaire boutique vendeur (obligatoire avant de publier) :
+- Nom de la boutique (obligatoire)
+- Description courte (max 200 car, optionnel)
+- Commune (liste déroulante) :
+  Abobo, Adjamé, Attécoubé, Cocody, Koumassi,
+  Marcory, Plateau, Port-Bouët, Treichville, Yopougon
+- Numéro WhatsApp de contact
+- Photo logo boutique (upload vers Supabase Storage)
+- Statut boutique par défaut : 'pending' (admin valide)
+- Message affiché : "Votre boutique est en cours de validation (24-48h)"
+- Bouton "Enregistrer ma boutique" → /seller/dashboard
+
+### PAGE 5 : /login
+- Choix : connexion par email OU téléphone (tabs)
+- Email : email + password
+- Téléphone : numéro + OTP SMS (Supabase sendOtp)
+- Bouton "Se connecter" → redirect selon role (buyer→/home, seller→/seller/dashboard)
+- Lien "Mot de passe oublié"
+- Lien "Créer un compte"
+
+### PAGE 6 : /home (Acheteur)
+Header : logo Smartmarket + barre de recherche (décorative Phase 1) + icône panier
+Section rayons : grille 3 colonnes, 6 cards de rayons avec emoji + nom
+Section "Produits récents" : grille 2 colonnes de ProductCard
+Bottom navigation : Accueil | Rayons | Panier | Menu
+
+### PAGE 7 : /category/:slug (Acheteur)
+- Header avec flèche retour + nom du rayon
+- Grille de ProductCard filtrés par category_id
+- État vide élégant si pas de produits
+
+### PAGE 8 : /product/:id (Acheteur)
+- Photo(s) produit en carousel (si plusieurs images)
+- Nom, prix en FCFA, unité, badge stock
+- Description (si présente)
+- Nom de la boutique + commune vendeur
+- Bouton WhatsApp "Contacter le vendeur" (lien wa.me)
+- Phase 2 : bouton "Ajouter au panier"
+
+### PAGE 9 : /seller/dashboard (Vendeur)
+- Header : "Mes produits" + bouton "+ Ajouter un produit"
+- Statut boutique visible (pending/active)
+- Liste des produits du vendeur en cards :
+  Chaque card : photo | nom | prix | statut (brouillon/publié) | bouton éditer
+- Filtre : Tous / Publiés / Brouillons
+- État vide avec CTA "Ajouter votre premier produit"
+
+### PAGE 10 : /seller/product/new et /seller/product/:id/edit (Vendeur)
+Formulaire complet :
+- Nom du produit (obligatoire)
+- Rayon (select avec 6 options, obligatoire)
+- Description (textarea, optionnel)
+- Prix en FCFA (number, obligatoire, min 0)
+- Unité : kg / sachet / botte / pièce / litre (select)
+- En stock : toggle switch oui/non
+- Photos : upload 1 à 3 photos vers Supabase Storage bucket 'product-images'
+  → Compression client avant upload (max 800px, qualité 0.8)
+  → Preview des photos sélectionnées
+- Statut : Brouillon / Publié (boutons radio)
+- Contraintes : vendeur doit avoir boutique 'active' pour publier
+- Bouton "Enregistrer" + bouton "Supprimer" (si édition)
+
+<span class="k">## COMPOSANTS À CRÉER</span>
+
+ProductCard.tsx :
+- Props : product (Product), onClick
+- Photo principale ou placeholder vert
+- Nom produit (tronqué à 2 lignes)
+- Prix en FCFA (formaté : "1 500 FCFA")
+- Badge unité (ex: "/ kg")
+- Badge stock si rupture
+
+BottomNav.tsx :
+- 4 onglets : Accueil (Home), Rayons (Grid2x2), Panier (ShoppingCart), Menu (Menu)
+- Onglet actif : couleur verte #16A34A
+- Fixed au bas de l'écran
+
+ProtectedRoute.tsx :
+- Vérifie que l'utilisateur est connecté via Zustand authStore
+- Redirige vers /login si non connecté
+
+<span class="k">## STATE MANAGEMENT (Zustand)</span>
+
+authStore.ts :
+- state : { user, profile, session, loading }
+- actions : setUser, setProfile, logout
+- Init : supabase.auth.onAuthStateChange()
+  → sur SIGNED_IN : fetch profile depuis table profiles
+
+shopStore.ts :
+- state : { shop, loading }
+- actions : setShop, fetchShop(userId)
+
+<span class="k">## ROUTING (App.tsx)</span>
+
+Routes publiques :
+  / → Onboarding (si pas de session) ou Home (si session + buyer)
+  /login → Login
+  /register → Register
+  /register/role → RegisterRole
+  /register/shop → RegisterShop (nécessite session)
+  /category/:slug → CategoryPage
+  /product/:id → ProductDetail
+
+Routes protégées (ProtectedRoute) :
+  /home → Home (buyers)
+  /seller/dashboard → SellerDashboard (sellers uniquement)
+  /seller/product/new → AddProduct
+  /seller/product/:id/edit → AddProduct (mode édition)
+
+<span class="k">## CONSTANTES (src/lib/constants.ts)</span>
+
+export const RAYONS = [
+  { id: 1, name: 'Légumes frais', emoji: '🥬', slug: 'legumes-frais' },
+  { id: 2, name: 'Épices & condiments', emoji: '🌿', slug: 'epices-condiments' },
+  { id: 3, name: 'Conserves & secs', emoji: '🥫', slug: 'conserves-secs' },
+  { id: 4, name: 'Tubercules', emoji: '🍠', slug: 'tubercules' },
+  { id: 5, name: 'Herbes aromatiques', emoji: '🌱', slug: 'herbes-aromatiques' },
+  { id: 6, name: 'Maraîchers divers', emoji: '🧅', slug: 'maraichers-divers' },
+]
+
+export const COMMUNES_ABIDJAN = [
+  'Abobo','Adjamé','Attécoubé','Cocody','Koumassi',
+  'Marcory','Plateau','Port-Bouët','Treichville','Yopougon'
+]
+
+export const UNITES = ['kg','sachet','botte','pièce','litre']
+
+export const formatFCFA = (amount: number): string =>
+  new Intl.NumberFormat('fr-CI').format(amount) + ' FCFA'
+
+<span class="k">## UPLOAD PHOTOS (Supabase Storage)</span>
+
+Fonction utilitaire à créer dans lib/supabase.ts :
+async function uploadProductImage(file: File, productId: string): Promise<string>
+  1. Redimensionner l'image côté client (Canvas API, max 800px, qualité 0.8)
+  2. Nommer le fichier : products/{productId}/{timestamp}.jpg
+  3. Upload vers bucket 'product-images' (public)
+  4. Retourner l'URL publique
+
+<span class="k">## RÈGLES MÉTIER IMPORTANTES</span>
+
+1. Un vendeur ne peut publier de produit que si shop.status = 'active'
+   → Si 'pending' : afficher message "En attente de validation"
+   → Si 'suspended' : afficher message "Boutique suspendue"
+
+2. Maximum 50 produits par vendeur pour le MVP
+
+3. Les catégories sont en lecture seule (insertées via SQL)
+
+4. Lors de la navigation vers /home :
+   → Si pas de session → /onboarding
+   → Si session + role = 'seller' → /seller/dashboard
+   → Si session + role = 'buyer' → /home
+
+<span class="k">## GÉNÈRE MAINTENANT</span>
+
+Commence par générer dans cet ordre :
+1. src/lib/supabase.ts (client + types)
+2. src/lib/constants.ts (rayons, communes, helpers)
+3. src/store/authStore.ts (Zustand)
+4. src/store/shopStore.ts (Zustand)
+5. src/App.tsx (routing complet)
+6. src/pages/Login.tsx
+7. src/pages/Register.tsx
+8. src/pages/RegisterRole.tsx
+9. src/pages/RegisterShop.tsx
+10. src/pages/Home.tsx
+11. src/pages/SellerDashboard.tsx
+12. src/pages/AddProduct.tsx
+13. src/components/BottomNav.tsx
+14. src/components/ProductCard.tsx
+15. src/components/ProtectedRoute.tsx
+
+Pour chaque fichier : code complet, sans troncature,
+avec commentaires sur les parties Supabase.</pre>
+    </div>
+  </section>
+
+  <!-- ==================== SECTION 6 ==================== -->
+  <section class="section" id="pages">
+    <div class="section-label">Référence</div>
+    <div class="section-title">Résumé des 10 pages</div>
+    <div class="section-desc">Vue rapide de toutes les pages à développer en Phase 1, avec leur route et leur audience.</div>
+
+    <div class="schema-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Page</th>
+            <th>Route</th>
+            <th>Audience</th>
+            <th>Priorité</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>01</td>
+            <td>Onboarding</td>
+            <td><code>/</code></td>
+            <td>Tous</td>
+            <td><span class="badge">haute</span></td>
+          </tr>
+          <tr>
+            <td>02</td>
+            <td>Inscription</td>
+            <td><code>/register</code></td>
+            <td>Tous</td>
+            <td><span class="badge">haute</span></td>
+          </tr>
+          <tr>
+            <td>03</td>
+            <td>Choix du rôle</td>
+            <td><code>/register/role</code></td>
+            <td>Tous</td>
+            <td><span class="badge">haute</span></td>
+          </tr>
+          <tr>
+            <td>04</td>
+            <td>Profil boutique</td>
+            <td><code>/register/shop</code></td>
+            <td>Vendeurs</td>
+            <td><span class="badge">haute</span></td>
+          </tr>
+          <tr>
+            <td>05</td>
+            <td>Connexion</td>
+            <td><code>/login</code></td>
+            <td>Tous</td>
+            <td><span class="badge">haute</span></td>
+          </tr>
+          <tr>
+            <td>06</td>
+            <td>Accueil Acheteur</td>
+            <td><code>/home</code></td>
+            <td>Acheteurs</td>
+            <td><span class="badge">haute</span></td>
+          </tr>
+          <tr>
+            <td>07</td>
+            <td>Page Rayon</td>
+            <td><code>/category/:slug</code></td>
+            <td>Acheteurs</td>
+            <td><span class="badge">moyenne</span></td>
+          </tr>
+          <tr>
+            <td>08</td>
+            <td>Fiche Produit</td>
+            <td><code>/product/:id</code></td>
+            <td>Acheteurs</td>
+            <td><span class="badge">moyenne</span></td>
+          </tr>
+          <tr>
+            <td>09</td>
+            <td>Dashboard Vendeur</td>
+            <td><code>/seller/dashboard</code></td>
+            <td>Vendeurs</td>
+            <td><span class="badge">haute</span></td>
+          </tr>
+          <tr>
+            <td>10</td>
+            <td>Ajout Produit</td>
+            <td><code>/seller/product/new</code></td>
+            <td>Vendeurs</td>
+            <td><span class="badge">haute</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout">
+      <strong>Prochaine étape après Phase 1 :</strong> Panier + Commandes + Mobile Money (Wave, Orange Money) + Notifications push + Suivi livraison GODELIVR
+    </div>
+  </section>
+
+</main>
+
+<script>
+function toggleTheme() {
+  const root = document.documentElement;
+  const current = root.getAttribute('data-theme');
+  if (current === 'dark') {
+    root.setAttribute('data-theme', 'light');
+  } else if (current === 'light') {
+    root.removeAttribute('data-theme');
+  } else {
+    root.setAttribute('data-theme', 'dark');
+  }
+}
+
+function copyCode(btn) {
+  const block = btn.closest('.code-block');
+  const pre = block.querySelector('pre');
+  const text = pre.innerText || pre.textContent;
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = 'Copié ✓';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = 'Copier';
+        btn.classList.remove('copied');
+      }, 2000);
+    }).catch(() => fallbackCopy(text, btn));
+  } else {
+    fallbackCopy(text, btn);
+  }
+}
+
+function fallbackCopy(text, btn) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try {
+    document.execCommand('copy');
+    btn.textContent = 'Copié ✓';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'Copier';
+      btn.classList.remove('copied');
+    }, 2000);
+  } catch(e) {
+    btn.textContent = 'Sélectionner manuellement';
+  }
+  document.body.removeChild(ta);
+}
+</script>
+
+</body>
+</html>
+
+</body></html>
